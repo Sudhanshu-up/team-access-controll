@@ -16,7 +16,7 @@ export const createOrgnizationValidator = [
 ];
 
 export const organizationIdValidator = [
-  param("organizationId")
+  param("org_id")
     .isMongoId()
     .withMessage("Invalid Organization Id"),
 ];
