@@ -53,7 +53,7 @@ export const inviteUserService = async (
   // 5 Email Valid? its handle by express vaildater
 
   // 6. User Exists?
-
+  const {email,role}= invitationData;
   const normalizedEmail = email.toLowerCase().trim();
 
   const user = await User.findOne({ email: normalizedEmail });
