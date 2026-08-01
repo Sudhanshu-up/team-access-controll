@@ -36,3 +36,5 @@ export const updateOrganizationValidator = [
     .isLength({ max: 500 })
     .withMessage("Description cannot exceed 500 characters"),
 ];
+
+
