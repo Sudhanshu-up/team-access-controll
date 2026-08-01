@@ -126,32 +126,8 @@ export const inviteUserService = async (
   } catch (error) {
     console.log(error);
   };
-  
+
   return invitation;
 };
 
-/*
 
-1. Organization Exists?
-
-2. Organization Active?
-
-3. Logged User is Member?
-
-4. Role Check?
-
-5. Email Valid?
-
-6. User Exists?
-
-7. Already Member?
-
-8. Pending Invite Exists?
-
-9. Generate Token
-
-10. Create Invitation
-
-11. Send Email
-
-**/
