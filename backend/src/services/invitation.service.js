@@ -105,6 +105,8 @@ export const inviteUserService = async(
         Date.now() + 24*60*60*1000
     );
 
+    // 10. Create Invitation
+
     const invitation = await Invitation.create({
         organizationId,
         email,
