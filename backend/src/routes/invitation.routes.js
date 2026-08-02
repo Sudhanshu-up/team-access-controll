@@ -1,6 +1,6 @@
 import  express from "express";
 import { authUser } from "../middlewares/authuser.middleare.js";
-import { inviteUserValidator } from "../validator/invitation.validator.js";
+import { acceptInvitationValidator, inviteUserValidator } from "../validator/invitation.validator.js";
 import { validate } from "../middlewares/vaildate.middleware.js";
 import { inviteUser } from "../controllers/invitation.controller.js";
 
@@ -12,5 +12,7 @@ router.post('/organization/:org_id/invitations',
     validate,
     inviteUser
 );
+
+router.post('/accept/:token',authUser,acceptInvitationValidator,validate,acceptInvitation);
 
 export default router;

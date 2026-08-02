@@ -17,3 +17,8 @@ export const inviteUserValidator = [
     .withMessage("Role must be admin, member or viewer")
 
 ];
+
+export const acceptInvitationValidator = [
+  param('token').notEmpty().withMessage('Invitation token is required')
+];
+
