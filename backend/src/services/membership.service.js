@@ -169,6 +169,91 @@ export const updateMemberRoleService = async (currentUser, membershipId ,role) =
 
 };
 
+export const deleteMemberService = async (currentUser, membershipId) => {
+  //     1. Find Target Membership
+  const targetMembership = await Membership.findById(membershipId).populate({
+    path: "userId",
+    select: "name email",
+  });
+
+  // 2. Target Exists?
+  if (!targetMembership) {
+    throw new ApiError(404, "Membership not found.");
+  }
+
+  // 3. Already Removed?
+
+  if (!targetMembership.isActive) {
+    throw new ApiError(400, "Member is already removed.");
+  }
+
+  // 4. Organization Exists?
+
+  const organization = await Organization.findById(
+    targetMembership.organizationId,
+  );
+
+  if (!organization) {
+    throw new ApiError(404, "Organization not found.");
+  }
+
+  // 5. Organization Active?
+  if (!organization.isActive) {
+    throw new ApiError(400, "Organization is inactive.");
+  }
+
+  // 6. Logged User Membership
+  const currentMembership = await Membership.findOne({
+    userId: currentUser._id,
+    organizationId: targetMembership.organizationId,
+    isActive: true,
+  });
+
+  if (!currentMembership) {
+    throw new ApiError(403, "You are not a member of this organization.");
+  }
+
+  // 7. Logged User Role
+  // 8. Permission Check
+
+  const allowedRoles = ["owner", "admin"];
+
+  if (!allowedRoles.includes(currentMembership.role)) {
+    throw new ApiError(403, "You are not allowed to remove members.");
+  }
+
+  // 9. Self Remove?
+
+  if (currentMembership._id.toString() === targetMembership._id.toString()) {
+    throw new ApiError(400, "You cannot remove yourself.");
+  }
+
+  // 10. Target Owner?
+  if (targetMembership.role === "owner") {
+    throw new ApiError(
+        403,
+        "Owner cannot be removed."
+    )
+    };
+
+  // 11. Admin Removing Admin?
+  if (currentMembership.role === "admin" && targetMembership.role === "admin") {
+    throw new ApiError(403, "Admins cannot remove another admin.");
+  }
+
+  // 12. Soft Delete Membership
+
+   targetMembership.isActive = false;
+   targetMembership.removedAt = new Date();
+   targetMembership.removedBy = currentUser._id;
+
+   await targetMembership.save();
+
+  // 13. Return
+
+  return targetMembership;
+};
+
 
 
 /**

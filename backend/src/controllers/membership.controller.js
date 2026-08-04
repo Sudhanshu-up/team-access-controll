@@ -1,4 +1,4 @@
-import { membershipService, updateMemberRoleService } from "../services/membership.service.js";
+import { membershipService, updateMemberRoleService,deleteMemberService } from "../services/membership.service.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
 export const aboutmembership = asyncHandler(async(req,res)=>{
@@ -29,4 +29,19 @@ export const updateMemberRole = asyncHandler(async(req,res)=>{
     });
 
 });
+
+export const deleteMember = asyncHandler(async(req,res)=>{
+
+    const removedMember = await deleteMemberService(
+        req.user,
+        req.params.membershipId,
+    );
+    return res.status(200).json({
+        success: true,
+        message: "Member removed successfully.",
+        data: removedMember,
+    });
+});
+
+
 
