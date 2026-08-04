@@ -24,4 +24,6 @@ router.patch("/updateorganization/:org_id",authUser,updateOrganizationValidator,
 router.delete("/deleteorganization/:org_id",authUser,organizationIdValidator,validate,deleteOrganization);
 
 
+
+
 export default router;

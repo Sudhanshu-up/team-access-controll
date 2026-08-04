@@ -14,5 +14,5 @@ router.post('/organization/:org_id/invitations',
 );
 
 router.post('/accept/:token',authUser,acceptInvitationValidator,validate,acceptInvitation);
-
+//  the reject cancell and frontend logic remains
 export default router;
