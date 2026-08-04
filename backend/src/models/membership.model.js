@@ -16,7 +16,7 @@ const membershipSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["owner", "admin", "member","viewer"],
+      enum: ["owner", "admin", "member", "viewer"],
       default: "member",
       required: true,
     },
@@ -36,16 +36,24 @@ const membershipSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    removedAt: {
+      type: Date,
+      default: null,
+    },
+
+    removedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
   },
   {
     timestamps: true,
     versionKey: false,
-  }
+  },
 );
 
-
-membershipSchema.index({userId:1, organizationId:1},{unique:true});
-
+membershipSchema.index({ userId: 1, organizationId: 1 }, { unique: true });
 
 // Fast search by organization
 membershipSchema.index({ organizationId: 1 });
@@ -53,4 +61,4 @@ membershipSchema.index({ organizationId: 1 });
 // Fast search by user
 membershipSchema.index({ userId: 1 });
 
-export const Membership = mongoose.model("Membership",membershipSchema);
+export const Membership = mongoose.model("Membership", membershipSchema);
