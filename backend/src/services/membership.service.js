@@ -254,6 +254,53 @@ export const deleteMemberService = async (currentUser, membershipId) => {
   return targetMembership;
 };
 
+export const leaveOrganizationService = async(currentUser,organizationId)=>{
+
+    const organization = await Organization.findById(
+        organizationId
+    );
+
+    if(!organization){
+        throw new ApiError(404, 'Organization not found')
+    };
+
+    if(!organization.isActive){
+        throw new ApiError(400,"Organization is inactive")
+    };
+
+    const membership = await Membership.findOne({
+        userId: currentUser._id,
+        organizationId,
+        isActive:true,
+    });
+
+    if(!membership){
+        throw new ApiError(
+            404,'you are not a member of this organization'
+        )
+    };
+
+    if(membership.role === 'owner'){
+        const ownerCount = await Membership.countDocuments({
+            organizationId,
+            role:'owner',
+            isActive:true,
+        });
+        if(ownerCount === 1){
+            throw new ApiError(400,'Transfer ownership before leaving the organization.')
+        };
+    };
+
+   
+
+    membership.isActive= false;
+    membership.removedAt= new Date();
+    membership.removedBy = currentUser._id;
+    await membership.save();
+
+    return membership;
+};
+
 
 
 /**

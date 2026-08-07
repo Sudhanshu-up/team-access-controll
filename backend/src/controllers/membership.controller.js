@@ -1,4 +1,4 @@
-import { membershipService, updateMemberRoleService,deleteMemberService } from "../services/membership.service.js";
+import { membershipService, updateMemberRoleService,deleteMemberService,leaveOrganizationService } from "../services/membership.service.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
 export const aboutmembership = asyncHandler(async(req,res)=>{
@@ -42,6 +42,20 @@ export const deleteMember = asyncHandler(async(req,res)=>{
         data: removedMember,
     });
 });
+
+export const leaveMember = asyncHandler(async(req,res)=>{
+    const leavememberFromOrganization = await leaveOrganizationService (
+        req.user,
+        req.params.org_id,
+    );
+
+    return res.status(204).json({
+        success:true,
+        message:'Member leaves the organization',
+        data:leavememberFromOrganization,
+    });
+
+})
 
 
 
