@@ -1,5 +1,5 @@
 import asyncHandler from "../utils/asyncHandler.js";
-import { acceptInvitationService, inviteUserService } from "../services/invitation.service.js";;
+import { acceptInvitationService, inviteUserService,rejectInvitationService } from "../services/invitation.service.js";;
 
 
 export const inviteUser = asyncHandler(async(req,res)=>{
@@ -32,4 +32,18 @@ export const acceptInvitation = asyncHandler(async(req,res)=>{
         data:invitation
     });
 });
+
+export const rejectInvitation = asyncHandler(async(req,res)=>{
+    const rejectInvite = await rejectInvitationService(
+        req.user,
+        req.params.token,
+    );
+
+    return res.status(200).json({
+        success:true,
+        message:'Invitation Rejected',
+        data:rejectInvite
+    });
+});
+
 

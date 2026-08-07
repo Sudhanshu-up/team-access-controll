@@ -112,6 +112,9 @@ export const inviteUserService = async (
 
   const invitationLink = `${process.env.CLIENT_URL}/accept-invitation/${invitationToken}`;
 
+  // reject invitation link
+  const rejectInvitationLink =`${CLIENT_URL}/reject-invitation/${token}`;
+
   // 12. Send Email
   try {
     await sendEmail({
@@ -123,6 +126,7 @@ export const inviteUserService = async (
         organizationName: organization.name,
         invitedBy: invitedByName,
         invitationLink,
+        rejectInvitationLink,
       }),
     });
   } catch (error) {
@@ -235,5 +239,71 @@ export const acceptInvitationService = async (LoggedInUser, token) => {
       invitation,
       organization: invitation.organizationId,
     };
+};
+
+export const rejectInvitationService = async(LoggedInUser,token)=>{
+
+  
+  const invitation = await Invitation.findOne({token})
+  .select("email organizationId status expiresAt isActive rejectedAt")
+  .populate({
+    path: "organizationId",
+    select: "name isActive",
+  });
+
+
+  if(!invitation) {
+    throw new ApiError(404, "Invitation not found.");
+  };
+
+  if(!invitation.organizationId){
+    throw new ApiError(404,'organization not found')
+  };
+
+  if (!invitation.organizationId.isActive) {
+  throw new ApiError(
+      400,
+      "Organization is inactive."
+  )};
+
+  if (!invitation.isActive) {
+    throw new ApiError(400, "Invitation is Inactive.");
+  }
+
+  if (invitation.expiresAt < new Date()) {
+    invitation.status = "expired";
+    invitation.isActive = false;
+    await invitation.save();
+
+    throw new ApiError(400, "Invitation has expired.");
+  }
+
+  if (invitation.status === "accepted") {
+    throw new ApiError(400, "Invitation already accepted.");
+  }
+
+  if (invitation.status === "rejected") {
+    throw new ApiError(400, "Invitation already rejected.");
+  };
+
+  if (LoggedInUser.email !== invitation.email) {
+    throw new ApiError(
+      403,
+      "This invitation is not associated with your account.",
+    );
+  };
+  
+
+  invitation.status = "rejected";
+
+  invitation.isActive = false;
+
+  invitation.rejectedAt = new Date();
+
+  await invitation.save();
+
+  return invitation;
+
+  
 };
 

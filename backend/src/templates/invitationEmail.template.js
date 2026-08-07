@@ -1,7 +1,10 @@
+
+
 export const invitationTemplate = ({
     organizationName,
     invitedBy,
     invitationLink,
+    rejectInvitationLink,
 }) => {
 
     return `
@@ -27,6 +30,20 @@ export const invitationTemplate = ({
                 "
             >
                 Accept Invitation
+            </a>
+
+            <a
+                href="${rejectInvitationLink}"
+                style="
+                    display:inline-block;
+                    padding:12px 20px;
+                    background:#2563eb;
+                    color:white;
+                    text-decoration:none;
+                    border-radius:6px;
+                "
+            >
+                Reject Invitation
             </a>
 
             <p>

@@ -49,6 +49,10 @@ const invitationSchema = new mongoose.Schema({
         default:null,
         index:true,
     },
+    rejectedAt:{
+        type: Date,
+        default: null,
+    },
 
     isActive:{
         type:Boolean,
