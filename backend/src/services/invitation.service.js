@@ -113,15 +113,13 @@ export const inviteUserService = async (
   const invitationLink = `${process.env.CLIENT_URL}/accept-invitation/${invitationToken}`;
 
   // reject invitation link
-  const rejectInvitationLink =`${CLIENT_URL}/reject-invitation/${token}`;
+  const rejectInvitationLink = `${process.env.CLIENT_URL}/reject-invitation/${invitationToken}`;
 
   // 12. Send Email
   try {
     await sendEmail({
       to: normalizedEmail,
-
       subject: "Invitation to Join Organization",
-
       html: invitationTemplate({
         organizationName: organization.name,
         invitedBy: invitedByName,
@@ -130,7 +128,9 @@ export const inviteUserService = async (
       }),
     });
   } catch (error) {
-    console.error(error);
+    console.error("INVITATION EMAIL ERROR:", error);
+
+    throw new ApiError(500, "Invitation created but email could not be sent.");
   }
 
   return invitation;

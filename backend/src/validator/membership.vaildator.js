@@ -7,7 +7,7 @@ export const membershipValidator = [
 ];
 
 export const membershipIdValidator = [
-  param("membershipId")
+  param("org_id")
   .isMongoId()
   .withMessage("Invalid Membership Id"),
 
