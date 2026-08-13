@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient,useQuery } from "@tanstack/react-query";
 
 import { invitationService } from "@/services/invitation.service";
 import { memberKeys } from "@/hooks/useMembers";
@@ -31,3 +31,29 @@ export function useRejectInvitation() {
     mutationFn: (token: string) => invitationService.reject(token),
   });
 }
+
+export function useCancelInvitation(orgId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (invitationId: string) =>
+      invitationService.cancel(invitationId),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["organization-invitations", orgId],
+      });
+    },
+  });
+}
+
+export function useOrganizationInvitations(orgId: string) {
+  return useQuery({
+    queryKey: ["organization-invitations", orgId],
+    queryFn: () =>
+      invitationService.getOrganizationInvitations(orgId),
+    enabled: !!orgId,
+  });
+};
+
+

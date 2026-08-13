@@ -1,8 +1,8 @@
 import  express from "express";
 import { authUser } from "../middlewares/authuser.middleare.js";
-import { acceptInvitationValidator, inviteUserValidator } from "../validator/invitation.validator.js";
+import { acceptInvitationValidator, inviteUserValidator, cancelInvitationValidator,getInvitationValidator } from "../validator/invitation.validator.js";
 import { validate } from "../middlewares/vaildate.middleware.js";
-import { inviteUser,acceptInvitation,rejectInvitation } from "../controllers/invitation.controller.js";
+import { inviteUser,acceptInvitation,rejectInvitation,cancelInvitation, getOrganizationInvitations } from "../controllers/invitation.controller.js";
 
 const router = express.Router();
 
@@ -15,6 +15,9 @@ router.post('/organization/:org_id/invitations',
 
 router.post('/accept/:token',authUser,acceptInvitationValidator,validate,acceptInvitation);
 
-router.post('/reject/:token/invitations',authUser,acceptInvitationValidator,validate,rejectInvitation)
-//  the reject cancell and frontend logic remains
+router.post('/reject/:token/invitations',authUser,acceptInvitationValidator,validate,rejectInvitation);
+
+router.delete("/cancel/:invitationId",authUser,cancelInvitationValidator,validate,cancelInvitation);
+
+router.get("/organization/:org_id/invitations",authUser,getInvitationValidator,validate,getOrganizationInvitations);
 export default router;

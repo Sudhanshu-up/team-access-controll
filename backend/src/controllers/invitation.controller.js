@@ -1,5 +1,5 @@
 import asyncHandler from "../utils/asyncHandler.js";
-import { acceptInvitationService, inviteUserService,rejectInvitationService } from "../services/invitation.service.js";;
+import { acceptInvitationService, inviteUserService,rejectInvitationService,cancelInvitationService,getOrganizationInvitationsService } from "../services/invitation.service.js";;
 
 
 export const inviteUser = asyncHandler(async(req,res)=>{
@@ -45,5 +45,30 @@ export const rejectInvitation = asyncHandler(async(req,res)=>{
         data:rejectInvite
     });
 });
+export const cancelInvitation = asyncHandler(async (req, res) => {
+  const cancelledInvitation = await cancelInvitationService(
+    req.user,
+    req.params.invitationId,
+  );
+
+  return res.status(200).json({
+    success: true,
+    message: "Invitation cancelled successfully.",
+    data: cancelledInvitation,
+  });
+});
+export const getOrganizationInvitations = asyncHandler(
+  async (req, res) => {
+    const invitations = await getOrganizationInvitationsService(
+      req.user,
+      req.params.org_id,
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: invitations,
+    });
+  },
+);
 
 

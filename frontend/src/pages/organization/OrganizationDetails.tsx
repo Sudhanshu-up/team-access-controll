@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useCancelInvitation } from "@/hooks/useInvitations";
+import { useOrganizationInvitations } from "@/hooks/useInvitations";
 import { useNavigate, useParams } from "react-router-dom";
 import { LogOut, Pencil, Trash2, UserPlus } from "lucide-react";
 import toast from "react-hot-toast";
@@ -32,10 +34,19 @@ export default function OrganizationDetails() {
   const members = useMembers(id);
   const deleteOrganization = useDeleteOrganization();
   const leaveOrganization = useLeaveOrganization();
-
+  const cancelInvitation = useCancelInvitation(id ?? "");
   const [inviteOpen, setInviteOpen] = useState(false);
+  const {
+  data: invitations = [],
+  isLoading: invitationsLoading,
+  isError: invitationsError,
+  refetch: refetchInvitations,
+  } = useOrganizationInvitations(id ?? "");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
+
+ 
+
 
   if (org.isLoading || members.isLoading) {
     return <LoadingState label="Loading organization..." />;
@@ -92,6 +103,7 @@ export default function OrganizationDetails() {
       },
     });
   };
+  
 
   return (
     <div className="mx-auto flex max-w-4xl flex-col gap-6">
@@ -187,6 +199,66 @@ export default function OrganizationDetails() {
               currentUserId={user?._id ?? ""}
               currentUserRole={myRole ?? "viewer"}
             />
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            Pending Invitations
+            <span className="ml-1.5 font-normal text-muted-foreground">
+              ({invitations.length})
+            </span>
+          </CardTitle>
+        </CardHeader>
+
+        <CardContent>
+          {invitationsLoading ? (
+            <LoadingState label="Loading invitations..." />
+          ) : invitationsError ? (
+            <ErrorState
+              message="Failed to load pending invitations."
+              onRetry={() => refetchInvitations()}
+            />
+          ) : invitations.length === 0 ? (
+            <p className="py-8 text-center text-sm text-muted-foreground">
+              No pending invitations.
+            </p>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {invitations.map((invitation) => (
+                <div
+                  key={invitation._id}
+                  className="flex items-center justify-between rounded-lg border p-4"
+                >
+                  <div className="flex flex-col gap-1">
+                    <p className="text-sm font-medium">{invitation.email}</p>
+
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Badge variant="secondary" className="capitalize">
+                        {invitation.role}
+                      </Badge>
+
+                      <span>
+                        Expires{" "}
+                        {new Date(invitation.expiresAt).toLocaleDateString()}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm">
+                      Resend
+                    </Button>
+
+                    <Button variant="destructive" size="sm">
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </CardContent>
       </Card>

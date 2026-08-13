@@ -1,68 +1,79 @@
 import mongoose from "mongoose";
 
-const invitationSchema = new mongoose.Schema({
-
+const invitationSchema = new mongoose.Schema(
+  {
     organizationId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Organization",
-        required: true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Organization",
+      required: true,
     },
 
-    email:{
-        type:String,
-        required:true,
-        lowercase:true,
-        trim:true
+    email: {
+      type: String,
+      required: true,
+      lowercase: true,
+      trim: true,
     },
 
     role: {
       type: String,
-      enum: ["admin", "member","viewer"],
+      enum: ["admin", "member", "viewer"],
       default: "member",
     },
 
     invitedBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required:true,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
 
-    status:{
-        type:String,
-        enum:['pending', 'accepted', 'rejected', 'expired','cancelled'],
-        default:'pending',
+    status: {
+      type: String,
+      enum: ["pending", "accepted", "rejected", "expired", "cancelled"],
+      default: "pending",
     },
 
-    token:{
-        type:String,
-        required:true,
-        unique:true
+    token: {
+      type: String,
+      required: true,
+      unique: true,
     },
 
-    expiresAt:{
-        type:Date,
-        required:true
+    expiresAt: {
+      type: Date,
+      required: true,
     },
 
-    acceptedAt:{
-        type:Date,
-        default:null,
-        index:true,
+    acceptedAt: {
+      type: Date,
+      default: null,
+      index: true,
     },
-    rejectedAt:{
-        type: Date,
-        default: null,
-    },
-
-    isActive:{
-        type:Boolean,
-        default:true
+    rejectedAt: {
+      type: Date,
+      default: null,
     },
 
-},{
-    timestamps:true,
-    versionKey:false
-});
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+    cancelledAt: {
+      type: Date,
+      default: null,
+    },
+
+    cancelledBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+  },
+  {
+    timestamps: true,
+    versionKey: false,
+  },
+);
 
 invitationSchema.index(
     {

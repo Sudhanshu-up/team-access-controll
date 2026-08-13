@@ -307,3 +307,145 @@ export const rejectInvitationService = async(LoggedInUser,token)=>{
   
 };
 
+
+export const cancelInvitationService = async (currentUser, invitationId) => {
+
+  // 1. Find Invitation
+  const invitation = await Invitation.findById(invitationId);
+
+  if (!invitation) {
+    throw new ApiError(404, "Invitation not found.");
+  }
+
+  // 2. Already inactive?
+  if (!invitation.isActive) {
+    throw new ApiError(400, "Invitation is already inactive.");
+  }
+
+  // 3. Find Organization
+  const organization = await Organization.findById(
+    invitation.organizationId
+  );
+
+  if (!organization) {
+    throw new ApiError(404, "Organization not found.");
+  }
+
+  // 4. Organization Active?
+  if (!organization.isActive) {
+    throw new ApiError(400, "Organization is inactive.");
+  }
+
+  // 5. Current User Membership
+  const currentMembership = await Membership.findOne({
+    userId: currentUser._id,
+    organizationId: invitation.organizationId,
+    isActive: true,
+  });
+
+  if (!currentMembership) {
+    throw new ApiError(
+      403,
+      "You are not a member of this organization."
+    );
+  }
+
+  // 6. Permission Check
+  const allowedRoles = ["owner", "admin"];
+
+  if (!allowedRoles.includes(currentMembership.role)) {
+    throw new ApiError(
+      403,
+      "You are not allowed to cancel invitations."
+    );
+  }
+
+  // 7. Invitation State
+  if (invitation.status === "accepted") {
+    throw new ApiError(400, "Accepted invitation cannot be cancelled.");
+  }
+
+  if (invitation.status === "rejected") {
+    throw new ApiError(400, "Rejected invitation cannot be cancelled.");
+  }
+
+  if (invitation.status === "cancelled") {
+    throw new ApiError(400, "Invitation is already cancelled.");
+  }
+
+  if (invitation.status === "expired") {
+    throw new ApiError(400, "Expired invitation cannot be cancelled.");
+  }
+
+  // 8. Cancel Invitation
+  invitation.status = "cancelled";
+  invitation.isActive = false;
+  invitation.cancelledAt = new Date();
+  invitation.cancelledBy = currentUser._id;
+
+  await invitation.save();
+
+  return invitation;
+};
+
+
+export const getOrganizationInvitationsService = async (
+  currentUser,
+  organizationId,
+) => {
+  // 1. Organization Exists?
+  const organization = await Organization.findById(organizationId);
+
+  if (!organization) {
+    throw new ApiError(404, "Organization not found.");
+  }
+
+  // 2. Organization Active?
+  if (!organization.isActive) {
+    throw new ApiError(400, "Organization is inactive.");
+  }
+
+  // 3. Current User Membership
+  const currentMembership = await Membership.findOne({
+    userId: currentUser._id,
+    organizationId,
+    isActive: true,
+  }).select("role");
+
+  if (!currentMembership) {
+    throw new ApiError(
+      403,
+      "You are not a member of this organization.",
+    );
+  }
+
+  // 4. Permission Check
+  const allowedRoles = ["owner", "admin"];
+
+  if (!allowedRoles.includes(currentMembership.role)) {
+    throw new ApiError(
+      403,
+      "You are not allowed to view organization invitations.",
+    );
+  }
+
+  // 5. Fetch Pending Invitations
+  const invitations = await Invitation.find({
+    organizationId,
+    status: "pending",
+    isActive: true,
+  })
+    .select(
+      "email role invitedBy status expiresAt createdAt",
+    )
+    .populate({
+      path: "invitedBy",
+      select: "name email",
+    })
+    .sort({
+      createdAt: -1,
+    });
+
+  return invitations;
+};
+

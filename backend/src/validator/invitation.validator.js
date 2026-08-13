@@ -22,3 +22,15 @@ export const acceptInvitationValidator = [
   param('token').notEmpty().withMessage('Invitation token is required')
 ];
 
+export const cancelInvitationValidator = [
+  param("invitationId")
+    .isMongoId()
+    .withMessage("Invalid invitation id"),
+];
+export const getInvitationValidator = [
+  param("org_id")
+    .isMongoId()
+    .withMessage("Invalid organization id"),
+];
+
+
