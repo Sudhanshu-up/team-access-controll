@@ -44,7 +44,7 @@ export default function OrganizationDetails() {
   } = useOrganizationInvitations(id ?? "");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
-
+  const [pendingCancelInvitation, setPendingCancelInvitation] = useState<string | null>(null);
  
 
 
@@ -103,6 +103,20 @@ export default function OrganizationDetails() {
       },
     });
   };
+ const handleCancelInvitation = () => {
+  if (!pendingCancelInvitation) return;
+
+  cancelInvitation.mutate(pendingCancelInvitation, {
+    onSuccess: () => {
+      toast.success("Invitation cancelled");
+      setPendingCancelInvitation(null);
+    },
+    onError: (err) => {
+      toast.error(parseApiError(err).message);
+      setPendingCancelInvitation(null);
+    },
+  });
+};
   
 
   return (
@@ -252,7 +266,11 @@ export default function OrganizationDetails() {
                       Resend
                     </Button>
 
-                    <Button variant="destructive" size="sm">
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => setPendingCancelInvitation(invitation._id)}
+                    >
                       Cancel
                     </Button>
                   </div>
@@ -289,6 +307,19 @@ export default function OrganizationDetails() {
         confirmLabel="Leave"
         loading={leaveOrganization.isPending}
         onConfirm={handleLeave}
+      />
+      <ConfirmDialog
+        open={!!pendingCancelInvitation}
+        onOpenChange={(open) => {
+          if (!open) {
+            setPendingCancelInvitation(null);
+          }
+        }}
+        title="Cancel invitation?"
+        description="This invitation will become inactive and the recipient will no longer be able to accept it."
+        confirmLabel="Cancel invitation"
+        loading={cancelInvitation.isPending}
+        onConfirm={handleCancelInvitation}
       />
     </div>
   );

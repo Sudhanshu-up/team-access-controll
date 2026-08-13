@@ -26,12 +26,12 @@ export const invitationService = {
     return data.data;
   },
   async cancel(invitationId: string): Promise<Invitation> {
-    const { data } = await api.delete<ApiEnvelope<Invitation>>(
-      `/api/v1/invite/${invitationId}`,
-    );
+  const { data } = await api.delete<ApiEnvelope<Invitation>>(
+    `/api/v1/invite/cancel/${invitationId}`,
+  );
 
-    return data.data;
-  },
+  return data.data;
+},
   async getOrganizationInvitations(orgId: string): Promise<Invitation[]> {
     const { data } = await api.get<ApiEnvelope<Invitation[]>>(
       `/api/v1/invite/organization/${orgId}/invitations`,
