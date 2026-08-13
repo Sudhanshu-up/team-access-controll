@@ -24,11 +24,11 @@ export const membershipService = {
    * `deleteMemberService` itself never reads it). We send a harmless
    * placeholder value purely to satisfy that validation rule.
    */
-  async remove(membershipId: string): Promise<void> {
-    await api.delete(`/api/v1/members/members/${membershipId}`, {
-      data: { role: "member" },
-    });
-  },
+ async remove(membershipId: string): Promise<void> {
+  await api.delete(
+    `/api/v1/members/members/${membershipId}`
+  );
+ },
 
   /**
    * NOTE: the backend route is `/organization/:org_id/leave`, but it is

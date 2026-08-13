@@ -1,17 +1,29 @@
-import { body,param } from "express-validator";
+import { body, param } from "express-validator";
 
 export const membershipValidator = [
-    param('org_id')
+  param("org_id")
     .isMongoId()
-    .withMessage('must give the organization id')
+    .withMessage("Invalid Organization Id"),
 ];
 
 export const membershipIdValidator = [
-  param("org_id")
-  .isMongoId()
-  .withMessage("Invalid Membership Id"),
+  param("membershipId")
+    .isMongoId()
+    .withMessage("Invalid Membership Id"),
+];
+
+export const updateMemberRoleValidator = [
+  param("membershipId")
+    .isMongoId()
+    .withMessage("Invalid Membership Id"),
 
   body("role")
-      .isIn(["admin", "member", "viewer"])
-      .withMessage("Role must be admin, member or viewer")
+    .isIn(["admin", "member", "viewer"])
+    .withMessage("Role must be admin, member or viewer"),
+];
+
+export const leaveOrganizationValidator = [
+  param("org_id")
+    .isMongoId()
+    .withMessage("Invalid Organization Id"),
 ];
