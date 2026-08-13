@@ -449,3 +449,114 @@ export const getOrganizationInvitationsService = async (
   return invitations;
 };
 
+export const resendInvitationService = async (
+  currentUser,
+  invitationId,
+) => {
+  // 1. Find invitation
+  const invitation = await Invitation.findById(invitationId);
+
+  if (!invitation) {
+    throw new ApiError(404, "Invitation not found.");
+  }
+
+  // 2. Organization exists?
+  const organization = await Organization.findById(
+    invitation.organizationId,
+  );
+
+  if (!organization) {
+    throw new ApiError(404, "Organization not found.");
+  }
+
+  // 3. Organization active?
+  if (!organization.isActive) {
+    throw new ApiError(400, "Organization is inactive.");
+  }
+
+  // 4. Current user's membership
+  const currentMembership = await Membership.findOne({
+    userId: currentUser._id,
+    organizationId: invitation.organizationId,
+    isActive: true,
+  }).select("role");
+
+  if (!currentMembership) {
+    throw new ApiError(
+      403,
+      "You are not a member of this organization.",
+    );
+  }
+
+  // 5. Permission
+  const allowedRoles = ["owner", "admin"];
+
+  if (!allowedRoles.includes(currentMembership.role)) {
+    throw new ApiError(
+      403,
+      "You are not allowed to resend invitations.",
+    );
+  }
+
+  // 6. Invitation state check
+  if (
+    invitation.status !== "pending" &&
+    invitation.status !== "expired"
+  ) {
+    throw new ApiError(
+      400,
+      "Only pending or expired invitations can be resent.",
+    );
+  }
+
+  // 7. Generate new secure token
+  const newToken = crypto.randomBytes(32).toString("hex");
+
+  // 8. New expiry — 24 hours
+  const newExpiresAt = new Date(
+    Date.now() + 24 * 60 * 60 * 1000,
+  );
+
+  // 9. Reset invitation
+  invitation.token = newToken;
+  invitation.expiresAt = newExpiresAt;
+  invitation.status = "pending";
+  invitation.isActive = true;
+
+  await invitation.save();
+
+  // 10. Generate fresh links
+  const invitationLink =
+    `${process.env.CLIENT_URL}/accept-invitation/${newToken}`;
+
+  const rejectInvitationLink =
+    `${process.env.CLIENT_URL}/reject-invitation/${newToken}`;
+
+  // 11. Send email
+  try {
+    await sendEmail({
+      to: invitation.email,
+
+      subject: "Reminder: Invitation to Join Organization",
+
+      html: invitationTemplate({
+        organizationName: organization.name,
+        invitedBy: currentUser.name,
+        invitationLink,
+        rejectInvitationLink,
+      }),
+    });
+  } catch (error) {
+    console.error(
+      "RESEND INVITATION EMAIL ERROR:",
+      error,
+    );
+
+    throw new ApiError(
+      500,
+      "Invitation updated but email could not be sent.",
+    );
+  }
+
+  return invitation;
+};

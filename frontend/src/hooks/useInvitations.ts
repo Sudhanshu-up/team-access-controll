@@ -47,6 +47,21 @@ export function useCancelInvitation(orgId: string) {
   });
 }
 
+export function useResendInvitation(orgId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (invitationId: string) =>
+      invitationService.resend(invitationId),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["organization-invitations", orgId],
+      });
+    },
+  });
+}
+
 export function useOrganizationInvitations(orgId: string) {
   return useQuery({
     queryKey: ["organization-invitations", orgId],

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useCancelInvitation } from "@/hooks/useInvitations";
-import { useOrganizationInvitations } from "@/hooks/useInvitations";
+import { useOrganizationInvitations,useResendInvitation, } from "@/hooks/useInvitations";
 import { useNavigate, useParams } from "react-router-dom";
 import { LogOut, Pencil, Trash2, UserPlus } from "lucide-react";
 import toast from "react-hot-toast";
@@ -35,6 +35,7 @@ export default function OrganizationDetails() {
   const deleteOrganization = useDeleteOrganization();
   const leaveOrganization = useLeaveOrganization();
   const cancelInvitation = useCancelInvitation(id ?? "");
+  const resendInvitation = useResendInvitation(id ?? "");
   const [inviteOpen, setInviteOpen] = useState(false);
   const {
   data: invitations = [],
@@ -114,6 +115,16 @@ export default function OrganizationDetails() {
     onError: (err) => {
       toast.error(parseApiError(err).message);
       setPendingCancelInvitation(null);
+    },
+  });
+};
+const handleResendInvitation = (invitationId: string) => {
+  resendInvitation.mutate(invitationId, {
+    onSuccess: () => {
+      toast.success("Invitation resent successfully");
+    },
+    onError: (err) => {
+      toast.error(parseApiError(err).message);
     },
   });
 };
@@ -262,7 +273,12 @@ export default function OrganizationDetails() {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleResendInvitation(invitation._id)}
+                      loading={resendInvitation.isPending}
+                    >
                       Resend
                     </Button>
 
