@@ -4,7 +4,10 @@ import connectDb from "./config/db.js";
 
 dotenv.config();
 
-let PORT = process.env.PORT || 2000;
+console.log("RENDER PORT:", process.env.PORT);
+console.log("NODE ENV:", process.env.NODE_ENV);
+
+const PORT = process.env.PORT || 2000;
 
 const startServer = async () => {
     try {
