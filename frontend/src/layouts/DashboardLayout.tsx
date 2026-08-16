@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Navigate, NavLink, Outlet, useNavigate } from "react-router-dom";
+import { Navigate, NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   Building2,
   LayoutDashboard,
@@ -27,6 +27,7 @@ const NAV_ITEMS = [
 export default function DashboardLayout() {
   const { isAuthenticated, isInitializing, user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
   if (isInitializing) {
@@ -37,8 +38,8 @@ export default function DashboardLayout() {
     );
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+ if (!isAuthenticated) {
+    return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
   const handleLogout = async () => {

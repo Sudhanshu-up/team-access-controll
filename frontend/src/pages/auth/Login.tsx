@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import type { Location } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import { useAuth } from "@/context/AuthContext";
@@ -31,6 +32,8 @@ type LoginForm = z.infer<typeof loginSchema>;
 export default function Login() {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = (location.state as { from?: Location } | null)?.from;
   const [formError, setFormError] = useState<string | null>(null);
 
   const {
@@ -44,7 +47,9 @@ export default function Login() {
     try {
       await login(values);
       toast.success("Welcome back!");
-      navigate("/dashboard", { replace: true });
+      navigate(from ? `${from.pathname}${from.search}` : "/dashboard", {
+        replace: true,
+      });
     } catch (error) {
       const { message } = parseApiError(error);
       setFormError(message);
