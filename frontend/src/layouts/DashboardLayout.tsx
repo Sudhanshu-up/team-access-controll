@@ -30,6 +30,7 @@ export default function DashboardLayout() {
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
+  
   if (isInitializing) {
     return (
       <div className="flex min-h-svh items-center justify-center">
