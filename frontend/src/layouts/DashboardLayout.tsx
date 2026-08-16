@@ -78,7 +78,7 @@ export default function DashboardLayout() {
             "z-40 w-64 shrink-0 border-r border-border bg-background",
             "md:sticky md:top-0 md:block md:h-svh",
             mobileOpen
-              ? "fixed inset-x-0 top-[57px] block h-[calc(100svh-57px)] overflow-y-auto"
+              ? "fixed inset-x-0 top-14.25 block h-[calc(100svh-57px)] overflow-y-auto"
               : "hidden"
           )}
         >
