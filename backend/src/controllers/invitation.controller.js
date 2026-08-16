@@ -13,7 +13,9 @@ export const inviteUser = asyncHandler(async(req,res)=>{
     return res.status(201)
     .json({
         success: true,
-        message: "Invitation sent successfully.",
+        message: invitation.emailSent
+          ? "Invitation sent successfully."
+          : "Invitation created, but the email could not be sent. Check your mail server configuration.",
         data: invitation,
     });
 
@@ -78,7 +80,9 @@ export const resendInvitation = asyncHandler(async (req, res) => {
 
   return res.status(200).json({
     success: true,
-    message: "Invitation resent successfully.",
+    message: invitation.emailSent
+      ? "Invitation resent successfully."
+      : "Invitation updated, but the email could not be sent. Check your mail server configuration.",
     data: invitation,
   });
 });

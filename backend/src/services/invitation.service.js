@@ -116,6 +116,11 @@ export const inviteUserService = async (
   const rejectInvitationLink = `${process.env.CLIENT_URL}/reject-invitation/${invitationToken}`;
 
   // 12. Send Email
+  // Invitation row is already saved at this point — agar email fail ho
+  // (SMTP config galat/missing) to poore request ko fail nahi karna,
+  // warna client ko lagta hai invite hi fail ho gaya. Isliye ab sirf
+  // log karke `emailSent: false` bhej denge.
+  let emailSent = true;
   try {
     await sendEmail({
       to: normalizedEmail,
@@ -129,11 +134,10 @@ export const inviteUserService = async (
     });
   } catch (error) {
     console.error("INVITATION EMAIL ERROR:", error);
-
-    throw new ApiError(500, "Invitation created but email could not be sent.");
+    emailSent = false;
   }
 
-  return invitation;
+  return { ...invitation.toObject(), emailSent };
 };
 
 export const acceptInvitationService = async (LoggedInUser, token) => {
@@ -533,6 +537,7 @@ export const resendInvitationService = async (
     `${process.env.CLIENT_URL}/reject-invitation/${newToken}`;
 
   // 11. Send email
+  let emailSent = true;
   try {
     await sendEmail({
       to: invitation.email,
@@ -551,12 +556,8 @@ export const resendInvitationService = async (
       "RESEND INVITATION EMAIL ERROR:",
       error,
     );
-
-    throw new ApiError(
-      500,
-      "Invitation updated but email could not be sent.",
-    );
+    emailSent = false;
   }
 
-  return invitation;
+  return { ...invitation.toObject(), emailSent };
 };

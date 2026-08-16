@@ -25,4 +25,6 @@ export interface Invitation {
   isActive: boolean;
   acceptedAt?: string | null;
   rejectedAt?: string | null;
+  /** Sirf invite/resend response me aata hai — false matlab email fail hua. */
+  emailSent?: boolean;
 }

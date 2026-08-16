@@ -58,8 +58,15 @@ export function InviteMemberDialog({
 
   const onSubmit = async (values: FormValues) => {
     try {
-      await inviteMember.mutateAsync(values);
-      toast.success(`Invitation sent to ${values.email}`);
+      const invitation = await inviteMember.mutateAsync(values);
+      if (invitation.emailSent === false) {
+        toast(
+          `Invitation created for ${values.email}, but the email couldn't be sent. Check the mail server config.`,
+          { icon: "⚠️" }
+        );
+      } else {
+        toast.success(`Invitation sent to ${values.email}`);
+      }
       close();
     } catch (error) {
       toast.error(parseApiError(error).message);

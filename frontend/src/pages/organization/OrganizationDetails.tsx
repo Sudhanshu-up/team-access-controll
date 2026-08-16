@@ -43,6 +43,7 @@ export default function OrganizationDetails() {
   isError: invitationsError,
   refetch: refetchInvitations,
   } = useOrganizationInvitations(id ?? "");
+  const [resendingId, setResendingId] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [confirmLeave, setConfirmLeave] = useState(false);
   const [pendingCancelInvitation, setPendingCancelInvitation] = useState<string | null>(null);
@@ -119,12 +120,25 @@ export default function OrganizationDetails() {
   });
 };
 const handleResendInvitation = (invitationId: string) => {
+  if (resendInvitation.isPending) return;
+
+  setResendingId(invitationId);
   resendInvitation.mutate(invitationId, {
-    onSuccess: () => {
-      toast.success("Invitation resent successfully");
+    onSuccess: (invitation) => {
+      if (invitation.emailSent === false) {
+        toast(
+          "Invitation updated, but the email couldn't be sent. Check the mail server config.",
+          { icon: "⚠️" }
+        );
+      } else {
+        toast.success("Invitation resent successfully");
+      }
     },
     onError: (err) => {
       toast.error(parseApiError(err).message);
+    },
+    onSettled: () => {
+      setResendingId(null);
     },
   });
 };
@@ -273,15 +287,16 @@ const handleResendInvitation = (invitationId: string) => {
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <Button
+                   <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleResendInvitation(invitation._id)}
-                      loading={resendInvitation.isPending}
+                      loading={resendInvitation.isPending && resendingId === invitation._id}
+                      disabled={resendInvitation.isPending && resendingId !== invitation._id}
                     >
                       Resend
                     </Button>
-
+                    
                     <Button
                       variant="destructive"
                       size="sm"
