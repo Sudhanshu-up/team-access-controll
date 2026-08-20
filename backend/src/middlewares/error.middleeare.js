@@ -5,25 +5,33 @@ const errorHandler = (err, req, res, next) => {
   let message = "Internal server error";
   let errors = [];
 
-  
   // 1. Our custom ApiError
-  
+
   if (err instanceof ApiError) {
     statusCode = err.statusCode;
     message = err.message;
     errors = err.errors || [];
   }
 
+  // JWT token expired
+  else if (err.name === "TokenExpiredError") {
+    statusCode = 401;
+    message = "Authentication token has expired.";
+  }
+
+  // JWT token invalid
+  else if (err.name === "JsonWebTokenError") {
+    statusCode = 401;
+    message = "Invalid authentication token.";
+  }
 
   // 2. Mongoose invalid ObjectId
-  
   else if (err.name === "CastError") {
     statusCode = 400;
     message = `Invalid ${err.path}`;
   }
 
   // 3. Mongoose schema validation error
-  
   else if (err.name === "ValidationError") {
     statusCode = 400;
     message = "Validation failed";
@@ -34,9 +42,7 @@ const errorHandler = (err, req, res, next) => {
     }));
   }
 
-  
   // 4. MongoDB duplicate key
-  
   else if (err.code === 11000) {
     statusCode = 409;
 
@@ -47,9 +53,7 @@ const errorHandler = (err, req, res, next) => {
       : "Duplicate value already exists";
   }
 
-  
   // 5. Unknown error
-  
   else {
     // Log the real error on the server
     console.error("UNHANDLED ERROR:", err);
@@ -64,7 +68,7 @@ const errorHandler = (err, req, res, next) => {
     errors,
     data: null,
   });
-};
+};;
 
 export default errorHandler;
 
