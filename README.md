@@ -126,43 +126,12 @@ npm run dev             # http://localhost:5173
 
 Full walkthrough: [docs/development.md](./docs/development.md).
 
-## Environment variables
-
-**`backend/.env`**
-```
-PORT=2000
-MONGODM_URI=your_mongodb_connection_string
-JWT_SECRET=your_long_random_secret
-BREVO_API_KEY=your_brevo_api_key
-MAIL_USER=your_verified_brevo_sender
-CLIENT_URL=http://localhost:5173
-```
-
-**`frontend/.env`**
-```
-VITE_API_BASE_URL=http://localhost:2000
-```
-
-Never commit `.env` files. Full variable-by-variable reference (including
-which legacy SMTP variables are no longer used):
-[docs/environment.md](./docs/environment.md).
-
 ## Deployment
 
 | Service | URL |
 |---|---|
 | Frontend | https://team-access-controll.vercel.app/login |
 | Backend API | https://team-access-controll-2.onrender.com |
-
-- **Frontend:** Vercel (SPA rewrite configured in `frontend/vercel.json`).
-- **Backend:** Render — binds to `process.env.PORT`/`0.0.0.0`; no
-  `Dockerfile` or `render.yaml` is committed, so the service is configured
-  manually in Render's dashboard. Free-tier services spin down when idle,
-  so the first request after inactivity can be slow — see
-  [docs/troubleshooting.md](./docs/troubleshooting.md).
-- **Database:** MongoDB (a replica-set-capable instance, e.g. Atlas — the
-  app uses multi-document transactions).
-- **Email:** Brevo.
 
 Full deployment guide: [docs/deployment.md](./docs/deployment.md).
 
